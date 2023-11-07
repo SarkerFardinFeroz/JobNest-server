@@ -31,12 +31,20 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     client.connect();
     const categoryCollection = client.db("jobNest").collection("category");
+    const jobsCollection = client.db("jobNest").collection("jobs");
+ 
+    
     app.get("/category", async (req, res) => {
       const cursor = categoryCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
-
+    app.get("/jobs", async (req, res) => {
+      const cursor = jobsCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+  
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
