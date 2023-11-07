@@ -32,8 +32,7 @@ async function run() {
     client.connect();
     const categoryCollection = client.db("jobNest").collection("category");
     const jobsCollection = client.db("jobNest").collection("jobs");
- 
-    
+
     app.get("/category", async (req, res) => {
       const cursor = categoryCollection.find();
       const result = await cursor.toArray();
@@ -44,7 +43,12 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
-  
+    app.post("/jobs", async (req, res) => {
+      const body = req.body;
+      const result = await jobsCollection.insertOne(body);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
