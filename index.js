@@ -49,9 +49,20 @@ async function run() {
       const result = await jobsCollection.findOne(query);
       res.send(result);
     });
+
     app.post("/jobs", async (req, res) => {
       const body = req.body;
       const result = await jobsCollection.insertOne(body);
+      res.send(result);
+    });
+
+    // get my jobs
+    app.get("/my-jobs", async (req, res) => {
+      let query = {};
+      if (req.query?.email) {
+        query = { email: req.query.email };
+      }
+      const result = await jobsCollection.find(query).toArray();
       res.send(result);
     });
 
