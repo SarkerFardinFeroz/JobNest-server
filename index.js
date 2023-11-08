@@ -32,6 +32,23 @@ async function run() {
     client.connect();
     const categoryCollection = client.db("jobNest").collection("category");
     const jobsCollection = client.db("jobNest").collection("jobs");
+ 
+
+    app.put("/apply/:id", async (req, res) => {
+      try {
+        const body = req.body;
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const update = { $inc: { jobApplicantsNumber: 1 } };
+        const options = { upsert: true };
+        const result = await jobsCollection.updateOne(filter, update, options);
+
+        res.json(result);
+      } catch (error) {
+        console.log(error);
+        res.send(error);
+      }
+    });
 
     app.get("/category", async (req, res) => {
       const cursor = categoryCollection.find();
@@ -58,12 +75,12 @@ async function run() {
 
     // delete job
     app.delete("/jobs/:id", async (req, res) => {
-      try{
-        const id = req.params.id
+      try {
+        const id = req.params.id;
         const query = { _id: new ObjectId(id) };
-        const result = await jobsCollection.deleteOne(query)
-        res.send(result)
-      }catch(error){
+        const result = await jobsCollection.deleteOne(query);
+        res.send(result);
+      } catch (error) {
         console.log(error);
       }
     });
