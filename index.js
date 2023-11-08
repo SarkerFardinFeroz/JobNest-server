@@ -55,34 +55,46 @@ async function run() {
       const result = await jobsCollection.insertOne(body);
       res.send(result);
     });
+
+    // delete job
+    app.delete("/jobs/:id", async (req, res) => {
+      try{
+        const id = req.params.id
+        const query = { _id: new ObjectId(id) };
+        const result = await jobsCollection.deleteOne(query)
+        res.send(result)
+      }catch(error){
+        console.log(error);
+      }
+    });
     // Update job
     app.put("/jobs/:id", async (req, res) => {
-    try{
-      const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const options = { upsert: true };
-      const updatedJob = req.body;
-      const job = {
-        $set: {
-          pictureUrl: updatedJob.pictureUrl,
-          logoURL: updatedJob.logoURL,
-          jobTitle: updatedJob.jobTitle,
-          jobLocation: updatedJob.jobLocation,
-          authorName: updatedJob.authorName,
-          jobCategory: updatedJob.jobCategory,
-          minimumSalary: updatedJob.minimumSalary,
-          maximumSalary: updatedJob.maximumSalary,
-          jobPostingDate: updatedJob.jobPostingDate,
-          jobApplicationDeadline: updatedJob.jobApplicationDeadline,
-          jobApplicantsNumber: updatedJob.jobApplicantsNumber,
-          jobDescription: updatedJob.jobDescription,
-        },
-      };
-      const result = await jobsCollection.updateOne(filter,job,options);
-      res.send(result);
-    } catch(error){
-      console.log(error)
-    }
+      try {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) };
+        const options = { upsert: true };
+        const updatedJob = req.body;
+        const job = {
+          $set: {
+            pictureUrl: updatedJob.pictureUrl,
+            logoURL: updatedJob.logoURL,
+            jobTitle: updatedJob.jobTitle,
+            jobLocation: updatedJob.jobLocation,
+            authorName: updatedJob.authorName,
+            jobCategory: updatedJob.jobCategory,
+            minimumSalary: updatedJob.minimumSalary,
+            maximumSalary: updatedJob.maximumSalary,
+            jobPostingDate: updatedJob.jobPostingDate,
+            jobApplicationDeadline: updatedJob.jobApplicationDeadline,
+            jobApplicantsNumber: updatedJob.jobApplicantsNumber,
+            jobDescription: updatedJob.jobDescription,
+          },
+        };
+        const result = await jobsCollection.updateOne(filter, job, options);
+        res.send(result);
+      } catch (error) {
+        console.log(error);
+      }
     });
 
     // get my jobs
