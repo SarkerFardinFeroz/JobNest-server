@@ -12,7 +12,11 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 // middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: [
+      // "http://localhost:5173",
+      "https://jobnest-1.web.app/",
+      "https://jobnest-1.firebaseapp.com/",
+    ],
     credentials: true,
   })
 );
@@ -56,7 +60,7 @@ async function run() {
 
     app.post("/jwt", async (req, res) => {
       const user = req.body;
-     const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
         expiresIn: "1h",
       });
 
@@ -68,17 +72,17 @@ async function run() {
         })
         .send({ success: true });
     });
-    app.post('logout',async(req,res)=>{
-      const user=req.body
-      res.clearCookie('token',{maxAge:0}).send({success:true})
-    })
+    app.post("logout", async (req, res) => {
+      const user = req.body;
+      res.clearCookie("token", { maxAge: 0 }).send({ success: true });
+    });
 
     app.get("/applied", verifyToken, async (req, res) => {
       try {
-        if(req.query.email!==req.user.email){
-          return res.status(403).send({message:'forbidden access'})
+        if (req.query.email !== req.user.email) {
+          return res.status(403).send({ message: "forbidden access" });
         }
-  
+
         const cursor = appliedCollection.find();
         const result = await cursor.toArray();
         res.send(result);
@@ -123,34 +127,31 @@ async function run() {
       }
     });
     app.get("/jobs", async (req, res) => {
-      try{
+      try {
         const cursor = jobsCollection.find();
-      const result = await cursor.toArray();
-      res.send(result);
-      }
-      catch (error) {
+        const result = await cursor.toArray();
+        res.send(result);
+      } catch (error) {
         console.log(error);
       }
     });
     app.get("/job-details/:id", async (req, res) => {
-      try{
+      try {
         const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await jobsCollection.findOne(query);
-      res.send(result);
-      }
-      catch (error) {
+        const query = { _id: new ObjectId(id) };
+        const result = await jobsCollection.findOne(query);
+        res.send(result);
+      } catch (error) {
         console.log(error);
       }
     });
 
     app.post("/jobs", async (req, res) => {
-      try{
+      try {
         const body = req.body;
-      const result = await jobsCollection.insertOne(body);
-      res.send(result);
-      }
-      catch (error) {
+        const result = await jobsCollection.insertOne(body);
+        res.send(result);
+      } catch (error) {
         console.log(error);
       }
     });
@@ -198,22 +199,18 @@ async function run() {
 
     // get my jobs
     app.get("/my-jobs", verifyToken, async (req, res) => {
-    try{
+      try {
+        if (req.query.email !== req.user.email) {
+          return res.status(403).send({ message: "forbidden access" });
+        }
 
-      if(req.query.email!==req.user.email){
-        return res.status(403).send({message:'forbidden access'})
-      }
-
-
-
-      let query = {};
-      if (req.query?.email) {
-        query = { email: req.query.email };
-      }
-      const result = await jobsCollection.find(query).toArray();
-      res.send(result);
-    }
-      catch (error) {
+        let query = {};
+        if (req.query?.email) {
+          query = { email: req.query.email };
+        }
+        const result = await jobsCollection.find(query).toArray();
+        res.send(result);
+      } catch (error) {
         console.log(error);
       }
     });
