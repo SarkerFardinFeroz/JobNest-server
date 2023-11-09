@@ -31,7 +31,7 @@ const client = new MongoClient(uri, {
 
 const verifyToken = (req, res, next) => {
   const token = req.cookies?.token;
-  console.log({ token });
+  // console.log({ token });
 
   //no token available
   if (!token) {
@@ -56,8 +56,7 @@ async function run() {
 
     app.post("/jwt", async (req, res) => {
       const user = req.body;
-
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
+     const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
         expiresIn: "1h",
       });
 
@@ -69,9 +68,17 @@ async function run() {
         })
         .send({ success: true });
     });
+    app.post('logout',async(req,res)=>{
+      const user=req.body
+      res.clearCookie('token',{maxAge:0}).send({success:true})
+    })
 
     app.get("/applied", verifyToken, async (req, res) => {
       try {
+        if(req.query.email!==req.user.email){
+          return res.status(403).send({message:'forbidden access'})
+        }
+  
         const cursor = appliedCollection.find();
         const result = await cursor.toArray();
         res.send(result);
@@ -192,6 +199,13 @@ async function run() {
     // get my jobs
     app.get("/my-jobs", verifyToken, async (req, res) => {
     try{
+
+      if(req.query.email!==req.user.email){
+        return res.status(403).send({message:'forbidden access'})
+      }
+
+
+
       let query = {};
       if (req.query?.email) {
         query = { email: req.query.email };
